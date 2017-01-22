@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<configuration>
+    <connection 
+        Source="Data Source=laptop-p3htffbh\sadbinstance;Initial Catalog=OperationManagement;Integrated Security=True" />
+    
+    <table_list>
+        <table type="log" tableName="T_EventLog" schemaFile="T_EventLog.sql" />
+    </table_list>
+</configuration>

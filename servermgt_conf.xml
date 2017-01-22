@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<configuration>
+    <log_list>
+        <log logname="Application" />
+        <log logname="System" />
+    </log_list>
+
+    <server_list>
+        <server hostname="LAPTOP-P3HTFFBH" ipv4address="">
+            <roles>
+                <role name="FileServer" />
+            </roles>
+        </server>
+    </server_list>
+</configuration>
