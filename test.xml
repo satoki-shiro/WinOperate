@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<testlist>
+<node>
+   <content name="username">user</content> 
+   <content name="password">%password%</content>
+</node>
+<node>
+   <content name="computername">%computername%</content> 
+   <content name="note">note</content>
+</node>
+</testlist>
