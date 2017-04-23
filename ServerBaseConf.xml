@@ -1,0 +1,11 @@
+<config>
+	<system>
+		<hostname>MyCom</hostname>
+		<domain>
+			<domainname>nmr.local</domainname>
+			<account>administrator</account>
+			<password>Lotus123</password>
+		</domain>
+		<updatedir>C:\TEMP\WindowsUpdate</updatedir>
+	</system>
+</config>
