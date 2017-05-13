@@ -2,9 +2,11 @@ $checkDateTime = Get-Date -Format "u"
 Write-Output "[$($checkDateTime)] Start checking Active Directory Status"
 
 Write-Output "@STEP1: ====== Check NTDS Replication Status"
-Get-ADReplicationPartnerMetadata -target * | `
-    select Server,LastReplicationAttempt,LastReplicationResult,LastReplicationSuccess,Partner | `
-    ft -a
+Write-Output "ServerName`tLastReplicationAttempt`tLastReplicationResult`tLastReplicationSuccess`tReplicationPartner"
+Get-ADReplicationPartnerMetadata -target * | 
+%{ 
+    Write-Output "$($_.Server)`t$($_.LastReplicationAttempt)`t$($_.LastReplicationResult)`t$($_.LastReplicationSuccess)`t$($_.Partner)"
+}
 Write-Output "@STEP1: ====== Done!`n"
 
 
@@ -13,20 +15,23 @@ Get-ADReplicationFailure nmr.local
 Write-Output "@STEP2: ====== Done!`n"
 
 
-# Following State description 
-# 0:Uninitialized, 1:Initialized, 2:Initial Sync, 3:Auto Recovery, 4:Normal, 5:In Error
+$SYSVOL_REP_STATUS=@{0="Uninitialized"; 1="Initialized"; 2="Initial Sync"; 3="Auto Recovery"; 4="Normal"; 5="In Error"}
 Write-Output "@STEP3: ====== Check SYSVOL DFSR Status"
+Write-Output "MemberName`tReplicationGroupName`tReplicatedFolderName`tStatus"
+
 $controllers = Get-ADDomainController -Filter *
 foreach ($controller in $controllers){
     $replGroup = Get-WmiObject -ComputerName $controller.hostName `
         -Namespace "root\MicrosoftDFS" `
         -Query "SELECT * FROM dfsrreplicatedfolderinfo WHERE replicatedfoldername='SYSVOL share'"
-    Write-Output "$($replGroup.MemberName)`t$($replGroup.ReplicationGroupName)`t$($replGroup.ReplicatedFolderName)`t$($replGroup.State)"
+    Write-Output "$($replGroup.MemberName)`t$($replGroup.ReplicationGroupName)`t$($replGroup.ReplicatedFolderName)`t$($SYSVOL_REP_STATUS[[int]$replGroup.State])"
 }
 Write-Output "@STEP3: ====== Done!`n"
 
 
 Write-Output "@STEP4: ====== Check NTP Status"
+Write-Output "ServerName`tTimeSource`tLastSyncDateTime`tLastSyncError`tOffsetLastSync"
+
 $monitorTemp = w32tm /monitor /domain:$($controllers[0].Domain) /nowarn
 $monitorResult = ($monitorTemp[9..$monitorTemp.length]).Trim()
 
