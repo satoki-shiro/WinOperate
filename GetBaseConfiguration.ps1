@@ -42,6 +42,24 @@ function ShowBaseComputerInformation(){
 
     $timeZone = "タイム ゾーン`t(UTC $($offsetTime)) $([System.Timezone]::CurrentTimeZone.StandardName)"
     Write-Output $timeZone
+
+    #Check Administrator Users
+    $Computer = $env:COMPUTERNAME
+    $ADSIComputer = [ADSI]("WinNT://$Computer,computer") 
+
+    Get-WmiObject Win32_Group -Filter "LocalAccount='True'" | %{
+        $localGroupName = $_.Name
+        $group = $ADSIComputer.psbase.children.find("$($localGroupName)","Group")
+
+        Write-Output "$($localGroupName)"
+        $group.psbase.invoke("members")  | ForEach{
+            $localUser = $_.GetType().InvokeMember("Name",'GetProperty',  $null,  $_, $null)
+            $trgUser =  Get-WMIObject Win32_UserAccount -Filter "LocalAccount=True and Name='$($localUser)'"
+            Write-Output "`t$($trgUser.Name)`t$($trgUser.Status)`t$($trgUser.PasswordExpires)"  
+        }
+    }
+
+
 }
 
 function ShowInstalledApplications(){
@@ -170,6 +188,8 @@ $outFileSuffix = ".tsv"
 Write-Host "@STEP1: Get basic computer information ..."
 ShowBaseComputerInformation > "$($outFilePrefix)_01-BaseComputerInformation$($outFileSuffix)"
 Write-Host "@STEP1: Done!"
+
+exit
 
 Write-Host "@STEP2: Get installed application information ..."
 ShowInstalledApplications > "$($outFilePrefix)_02-InstalledApplications$($outFileSuffix)"
