@@ -1,16 +1,17 @@
 <?xml version="1.0" ?>
 <configuration>
 	<init_info>
+		<remote_user>administrator</remote_user>
 		<ope_dir>C:\NSCCOPE_WindowUpdateLogs</ope_dir>
-		<work_log>TEMP_WORK.log</work_log>
-		<search_script taskname="WUSearchDownload">WUSearchDownloader.ps1</search_script>
-		<install_script taskname="WUInstall">WUInstaller.ps1</install_script>
+		<search_script taskname="WUSearchDownload" logfile="WUSearchDownload.log" listfile="WUSearchDownload.list">WUSearchDownloader.ps1</search_script>
+		<install_script taskname="WUInstall" logfile="WUInstall.log" listfile="WUInstall.list">WUInstaller.ps1</install_script>
+		<content_location>C:\Windows\SoftwareDistribution\Download</content_location>
 	</init_info>
     <location_list>
     	<location name="HQ">
     		<server_list>
     			<server hostname="NMR-DC" ipv4Addr="192.168.254.200" priority="1" updateType="2" />
-    			<server hostname="NMR-DC2" ipv4Addr="192.168.254.201"  priority="2" updateType="2" />
+    			<server hostname="NMR-DC3" ipv4Addr="192.168.254.202"  priority="2" updateType="2" />
     		</server_list>
     	</location>
 	</location_list>

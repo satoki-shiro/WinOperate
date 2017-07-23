@@ -19,3 +19,5 @@ Install-ADDSDomainController –domainname nmr.local `
     -ReplicationSourceDC NMR-DC.nmr.local
 
 
+#Uninstall-ADDSDomainController -LocalAdministratorPassword (ConvertTo-SecureString "*****" -asplaintext -force)
+

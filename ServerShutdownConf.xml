@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<configuration>
+	<init_info>
+		<remote_user>administrator</remote_user>
+	</init_info>
+    <location_list>
+    	<location name="HQ">
+    		<primary_server hostname="NMR-DC" ipv4Addr="192.168.254.200" requiredRestart="YES" />
+    		<server_list>
+    			<server hostname="NMR-DC3" ipv4Addr="192.168.254.202" />
+    		</server_list>
+    	</location>
+	</location_list>
+</configuration>

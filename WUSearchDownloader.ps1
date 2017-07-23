@@ -1,4 +1,4 @@
-﻿function SearchWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$UpdateCollection)
+﻿function SearchWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$UpdateCollection, $LogFile)
 {
     $mHostName = $env:COMPUTERNAME
     $mResultOfSearch = $UpdateSearcher.Search("IsInstalled = 0 and IsHidden = 0")
@@ -8,7 +8,7 @@
     $mUpdateItemCount = $mResultOfSearch.updates.count
     If($mUpdateItemCount -eq 0)
     {
-       "$($mHostName)`t0`t0`t$($mResultDescription)"
+        Write-Output "$($mHostName)`tEnd Search`t0`t0`t$($mResultDescription)" > $LogFile
         Return
     }
 
@@ -18,13 +18,14 @@
         $mUpdateItemSize += $updateItem.MaxDownloadSize
         $UpdateCollection.Add($updateItem) | Out-Null
     }
-    "$($mHostName)`t$($mUpdateItemCount)`t$([Math]::Round($mUpdateItemSize/(1024*1024),1))MB`t$($mResultDescription)"
+    Write-Output "$($mHostName)`tEnd Search`t$($mUpdateItemCount)`t$([Math]::Round($mUpdateItemSize/(1024*1024),1))MB`t$($mResultDescription)" > $LogFile
     
  }
 
-function DownloadWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$UpdateCollection, [__ComObject]$UpdateSession, $PreLogMessage, $LogFile)
+function DownloadWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$UpdateCollection, [__ComObject]$UpdateSession, $LogFile, $ListFile)
 {
     $mDownloadCount = 0
+    $mPreLogMessage = Get-Content $LogFile
 
     ForEach($downloadItem in $UpdateCollection)
     {
@@ -42,18 +43,17 @@ function DownloadWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$Updat
         {
             If($_ -match "HRESULT: 0x80240044")
 			{
-				Write-Output "$($PreLogMessage)`t0`tSTATUS:END`tERROR:You cannot perform this task due to your privilege." > $LogFile
+				Write-Output "$($mPreLogMessage)`tEnd Download`t0`tERROR:You cannot perform this task due to your privilege." > $LogFile
 			} 
             Return
         }
 
         If($mDownloadResult.ResultCode -eq 2){
             $mDownloadCount++
+            Write-Output "$($downloadItem.Identity.UpdateID)`t$($downloadItem.InstallationBehavior.RebootBehavior)`t$($downloadItem.Title)" >> $ListFile
         }
 
-        Write-Output "$($PreLogMessage)`t$($mDownloadCount) / $($UpdateCollection.count)`tSTATUS:PROGRESS`tINFO:Now Downloading ..." > $LogFile
-        #Write-Progress -Activity "Download files..." -PercentComplete $mDownloadCount `
-        #    -CurrentOperation "$($mDownloadCount) / $($UpdateCollection.count)"
+        Write-Output "$($mPreLogMessage)`tStart Download`t$($mDownloadCount) / $($UpdateCollection.count)" > $LogFile
     }
 
    
@@ -70,11 +70,11 @@ function DownloadWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$Updat
 
     If($UpdateCollection.count -gt $mDownloadCount)
     {
-        Write-Output "$($PreLogMessage)`t$($mDownloadCount)`tSTATUS:END`tWARN:Failed to download some files. Reboot is $($mRequiredReboot)" > $LogFile
+        Write-Output "$($mPreLogMessage)`tEnd Download`t$($mDownloadCount)`tWARN:Failed to download some files. Reboot Flag is $($mRequiredReboot)" > $LogFile
     }
     else
     {
-        Write-Output "$($PreLogMessage)`t$($mDownloadCount)`tSTATUS:END`tINFO:Download completed. Reboot is $($mRequiredReboot)" > $LogFile
+        Write-Output "$($mPreLogMessage)`tEnd Download`t$($mDownloadCount)`tINFO:Downloading is completed. Reboot Flag is $($mRequiredReboot)" > $LogFile
     }
 }
 
@@ -86,6 +86,7 @@ function DownloadWindowsUpdate([__ComObject]$UpdateSearcher, [__ComObject]$Updat
 
 $pUpdateType = $Args[1]
 $pLogFile = $Args[2]
+$pListFile = $Args[3]
 
 If($pUpdateType -eq $null -or $pLogFile -eq $null)
 {
@@ -106,7 +107,8 @@ $oUpdateSearcher.ServerSelection = $pUpdateType
 $oUpdateSearchResult = $null
 
 New-Item -ItemType File -Force $pLogFile
-$env:COMPUTERNAME > $pLogFile
-SearchWindowsUpdate $oUpdateSearcher $oUpdateCollection > $pLogFile
-$mPreLogMessage = Get-Content $pLogFile
-DownloadWindowsUpdate $oUpdateSearcher $oUpdateCollection $oUpdateSession $mPreLogMessage $pLogFile
+Write-Output "$($env:COMPUTERNAME)`tStart Search" > $pLogFile
+SearchWindowsUpdate $oUpdateSearcher $oUpdateCollection $pLogFile
+
+New-Item -ItemType File -Force $pListFile
+DownloadWindowsUpdate $oUpdateSearcher $oUpdateCollection $oUpdateSession $pLogFile $pListFile
