@@ -98,3 +98,10 @@ switch($currentStep){
     }
 
 }
+
+
+
+# Only DOW
+# 1. Change Hostname
+# wmic computersystem where name="%COMPUTERNAME%" call rename name="NEW-NAME"
+

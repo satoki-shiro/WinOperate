@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<configuration>
+	<init_info>
+		<remote_user>administrator</remote_user>
+		<cred_path></cred_path>
+		<category_list>
+			<category id="1" name="oa" />
+			<category id="2" name="fa" />
+			<category id="3" name="transfer" />
+		</category_list>
+	</init_info>
+	<server_list>
+		<server id="1" hostname="NMR-DC" >
+			<share_private_dir type="2">C:\Private</share_private_dir>
+		</server>
+		<server id="10" hostname="NMR-DC2" >
+			<share_private_dir type="2">C:\Private</share_private_dir>
+		</server>
+		<server id="12" hostname="NMR-DC3" >
+			<share_private_dir type="2">C:\Private</share_private_dir>
+		</server>
+	</server_list>
+</configuration>
