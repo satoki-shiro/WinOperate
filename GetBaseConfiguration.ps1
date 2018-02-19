@@ -62,6 +62,19 @@ function ShowBaseComputerInformation(){
 
 }
 
+function ShowDiskInformation(){
+    Write-Output "モデル`tファームウェアバージョン`tディスク番号`tサイズ(GB)`t物理セクタサイズ`tパーティションタイプ`t状態"
+    $diskArray= Get-Disk
+    foreach($disk in $diskArray){
+        Write-Output "$($disk.Model)`t$($disk.FirmwareVersion)`t$($disk.Number)`t$($disk.Size/(1024*1024*1024))`t$($disk.PhysicalSectorSize)`t$($disk.PartitionStyle)`t$($disk.HealthStatus)"   
+    }
+    
+    $partitionArray = Get-Partition
+    foreach($partition in $partitionArray){
+        Write-Output "$($partition.PartitionNumber)`t$($partition.DriveLetter)`t$($partition.Type)`t$($partition.Size/(1024*1024*1024))"   
+    }
+}
+
 function ShowInstalledApplications(){
     $uninstallKey=”SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall” 
     $localMachineReg=[microsoft.win32.registrykey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::LocalMachine,[Microsoft.Win32.RegistryView]::Default)
@@ -177,6 +190,15 @@ function ShowNetworkRouting(){
 
 }
 
+
+function ShowWindowsFeature()
+{
+    Get-WindowsFeature | ?{$_.Installed -eq $true} | `
+    %{$indent="`t" * $_.depth; `
+        Write-Output "$($_.FeatureType)`t$($_.systemservice)$($indent) $($_.DisplayName)" `
+    }
+}
+
 ########################################################
 # Entry Point
 ########################################################
@@ -189,24 +211,30 @@ Write-Host "@STEP1: Get basic computer information ..."
 ShowBaseComputerInformation > "$($outFilePrefix)_01-BaseComputerInformation$($outFileSuffix)"
 Write-Host "@STEP1: Done!"
 
-exit
-
-Write-Host "@STEP2: Get installed application information ..."
-ShowInstalledApplications > "$($outFilePrefix)_02-InstalledApplications$($outFileSuffix)"
+Write-Host "@STEP2: Get disk information ..."
+ShowDiskInformation > "$($outFilePrefix)_02-DiskInformation$($outFileSuffix)"
 Write-Host "@STEP2: Done!"
 
-Write-Host "@STEP3: Get firewall information ..."
-ShowFirewallRules > "$($outFilePrefix)_03-FirewallRules$($outFileSuffix)"
+Write-Host "@STEP3: Get installed application information ..."
+ShowInstalledApplications > "$($outFilePrefix)_03-InstalledApplications$($outFileSuffix)"
 Write-Host "@STEP3: Done!"
 
-Write-Host "@STEP4: Get service information ..."
-ShowServiceList > "$($outFilePrefix)_04-ServiceList$($outFileSuffix)"
+Write-Host "@STEP4: Get firewall information ..."
+ShowFirewallRules > "$($outFilePrefix)_04-FirewallRules$($outFileSuffix)"
 Write-Host "@STEP4: Done!"
 
-Write-Host "@STEP5: Get network interface information ..."
-ShowNetworkInterfaces > "$($outFilePrefix)_05-NetworkInterfaces$($outFileSuffix)"
+Write-Host "@STEP5: Get service information ..."
+ShowServiceList > "$($outFilePrefix)_05-ServiceList$($outFileSuffix)"
 Write-Host "@STEP5: Done!"
 
-Write-Host "@STEP6: Get network routing information ..."
-ShowNetworkRouting > "$($outFilePrefix)_06-NetworkRouting$($outFileSuffix)"
+Write-Host "@STEP6: Get network interface information ..."
+ShowNetworkInterfaces > "$($outFilePrefix)_06-NetworkInterfaces$($outFileSuffix)"
 Write-Host "@STEP6: Done!"
+
+Write-Host "@STEP7: Get network routing information ..."
+ShowNetworkRouting > "$($outFilePrefix)_07-NetworkRouting$($outFileSuffix)"
+Write-Host "@STEP7: Done!"
+
+Write-Host "@STEP8: Get Installed Windows Features ..."
+ShowWindowsFeature > "$($outFilePrefix)_08-WindowsFeature$($outFileSuffix)"
+Write-Host "@STEP8: Done!"
