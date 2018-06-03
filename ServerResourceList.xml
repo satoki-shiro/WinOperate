@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<configuration>
+    <resource_list>
+    	<resource targetfile="C:\Resource\test_%HOSTNAME%_%YYYYMMDD%.csv" execfile="C:\Resource\get.bat">
+    		<server_list>
+    			<!-- server hostname="192.168.254.210" /-->
+                <server hostname="192.168.254.220" />
+    		</server_list>
+    	</resource>
+	</resource_list>
+</configuration>
