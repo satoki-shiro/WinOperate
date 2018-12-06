@@ -1,4 +1,12 @@
-﻿
+﻿function SetupPrimaryADDS
+{
+    Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+    Install-ADDSForest -DomainName sixteen.contoso.ad
+    Get-Service adws,kdc,netlogon,dns
+    Get-smbshare
+}
+
+
 $errorLogs = ""
 
 Install-WindowsFeature -name AD-Domain-Services –IncludeManagementTools
@@ -20,4 +28,5 @@ Install-ADDSDomainController –domainname nmr.local `
 
 
 #Uninstall-ADDSDomainController -LocalAdministratorPassword (ConvertTo-SecureString "*****" -asplaintext -force)
+
 
