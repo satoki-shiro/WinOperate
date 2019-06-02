@@ -1,0 +1,5 @@
+#Setup NanoServer
+
+cd C:\NanoServer\NanoServerImageGenerator
+Import-Module .\NanoServerImageGenerator
+New-NanoServerImage -Edition Standard -DeploymentType Guest -MediaPath E: -TargetPath C:\Nano\SRV1.vhd -ComputerName SRV1

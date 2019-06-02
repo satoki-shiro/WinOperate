@@ -6,6 +6,21 @@
     Get-smbshare
 }
 
+function DemoteADDS
+{
+    Import-Module ADDSDeployment
+Uninstall-ADDSDomainController `
+-DemoteOperationMasterRole:$true `
+-IgnoreLastDnsServerForZone:$true `
+-LastDomainControllerInDomain:$true `
+-RemoveApplicationPartitions:$true `
+-Force:$true 
+
+Import-Module ActiveDirectory
+Uninstall-ADDSDomainController -IgnoreLastDCInDomainMismatch `
+-RemoveApplicationPartitions 
+}
+
 
 $errorLogs = ""
 
